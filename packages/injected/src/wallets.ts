@@ -64,6 +64,16 @@ const metamask: InjectedWalletModule = {
   platforms: ['all']
 }
 
+const infinitywallet: InjectedWalletModule = {
+  label: ProviderLabel.InfinityWallet,
+  injectedNamespace: InjectedNameSpace.Ethereum,
+  checkProviderIdentity: ({ provider }) =>
+    !!provider && !!provider[ProviderIdentityFlag.InfinityWallet],
+  getIcon: async () => (await import('./icons/infinitywallet.js')).default,
+  getInterface: getInjectedInterface(ProviderIdentityFlag.InfinityWallet),
+  platforms: ['desktop']
+}
+
 const exodus: InjectedWalletModule = {
   label: ProviderLabel.Exodus,
   injectedNamespace: InjectedNameSpace.Ethereum,
@@ -263,6 +273,18 @@ const alphawallet: InjectedWalletModule = {
   platforms: ['mobile']
 }
 
+const apexwallet: InjectedWalletModule = {
+  label: ProviderLabel.ApexWallet,
+  injectedNamespace: InjectedNameSpace.Ethereum,
+  checkProviderIdentity: ({ provider }) =>
+    !!provider && !!provider[ProviderIdentityFlag.ApexWallet],
+  getIcon: async () => (await import('./icons/apexwallet.js')).default,
+  getInterface: async () => ({
+    provider: window.ethereum
+  }),
+  platforms: ['desktop', 'Chrome', 'Chromium', 'Microsoft Edge']
+}
+
 const atoken: InjectedWalletModule = {
   label: ProviderLabel.AToken,
   injectedNamespace: InjectedNameSpace.Ethereum,
@@ -273,6 +295,16 @@ const atoken: InjectedWalletModule = {
     provider: window.ethereum
   }),
   platforms: ['mobile']
+}
+
+const bifrostwallet: InjectedWalletModule = {
+  label: ProviderLabel.BifrostWallet,
+  injectedNamespace: InjectedNameSpace.Ethereum,
+  checkProviderIdentity: ({ provider }) =>
+    !!provider && !!provider[ProviderIdentityFlag.BifrostWallet],
+  getIcon: async () => (await import('./icons/bifrostwallet.js')).default,
+  getInterface: getInjectedInterface(ProviderIdentityFlag.BifrostWallet),
+  platforms: ['all']
 }
 
 const bitpie: InjectedWalletModule = {
@@ -707,12 +739,12 @@ const defiwallet: InjectedWalletModule = {
   label: ProviderLabel.DeFiWallet,
   injectedNamespace: InjectedNameSpace.DeFiConnectProvider,
   checkProviderIdentity: ({ provider }) =>
-        !!provider && !!provider[ProviderIdentityFlag.DeFiWallet],
+    !!provider && !!provider[ProviderIdentityFlag.DeFiWallet],
   getIcon: async () => (await import('./icons/defiwallet.js')).default,
   getInterface: async () => ({
     provider: createEIP1193Provider(window.deficonnectProvider)
   }),
-  platforms: ['all'],
+  platforms: ['all']
 }
 
 const wallets = [
@@ -720,6 +752,7 @@ const wallets = [
   exodus,
   frontier,
   metamask,
+  bifrostwallet,
   binance,
   coinbase,
   detected,
@@ -727,6 +760,7 @@ const wallets = [
   opera,
   status,
   alphawallet,
+  apexwallet,
   atoken,
   bitpie,
   blockwallet,
@@ -758,7 +792,8 @@ const wallets = [
   zerion,
   rainbow,
   safepal,
-  defiwallet
+  defiwallet,
+  infinitywallet
 ]
 
 export default wallets

@@ -51,6 +51,13 @@ jobs:
           NODE_OPTIONS: "--max_old_space_size=8192"
         run: yarn build
 
+      - name: Generate the sitemap
+        uses: cicirello/generate-sitemap@v1
+        with:
+          path-to-root: './docs/build'
+          drop-html-extension: true
+          base-url-path: https://onboard.blocknative.com
+        
       - name: Peak at folder contents
         run: ls -al
         

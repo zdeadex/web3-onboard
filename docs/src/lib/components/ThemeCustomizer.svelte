@@ -30,13 +30,23 @@
 
   const addURLToIFrame = () => {
     if (!webURL || !isValidUrl(webURL)) {
-      alert('Invaled URL entered')
+      alert('Invalid URL entered')
       return
     }
-    iframeUsed = true
-    document.querySelector('#iframe_underlay').setAttribute('src', webURL)
-    hideDirections = true
-    onboard.connectWallet()
+
+    fetch(webURL)
+      .then(() => {
+        iframeUsed = true
+        document.querySelector('#iframe_underlay').setAttribute('src', webURL)
+        hideDirections = true
+        !onboard && getOnboard()
+        onboard.connectWallet()
+      })
+      .catch(() => {
+        alert(
+          'The website entered cannot be displayed within an iframe. Please try a different URL. See the browser console for more information.'
+        )
+      })
   }
 
   const resetPage = () => {
@@ -47,6 +57,10 @@
     uploaded_image = undefined
     webURL = ''
     resetTheme()
+    closeOnboard()
+  }
+
+  const closeOnboard = () => {
     const onboardCloseBtnVisible = document
       ?.querySelector('body > onboard-v2')
       ?.shadowRoot?.querySelector('.close-button')
@@ -67,7 +81,8 @@
       '--w3o-text-color': 'unset',
       '--w3o-border-color': 'unset',
       '--w3o-action-color': 'unset',
-      '--w3o-border-radius': 'unset'
+      '--w3o-border-radius': 'unset',
+      '--w3o-font-family': 'unset'
     },
     custom: {
       '--w3o-background-color': 'unset',
@@ -75,7 +90,8 @@
       '--w3o-text-color': 'unset',
       '--w3o-border-color': 'unset',
       '--w3o-action-color': 'unset',
-      '--w3o-border-radius': 'unset'
+      '--w3o-border-radius': 'unset',
+      '--w3o-font-family': 'unset'
     },
     light: {
       '--w3o-background-color': '#ffffff',
@@ -83,7 +99,8 @@
       '--w3o-text-color': '#1a1d26',
       '--w3o-border-color': '#d0d4f7',
       '--w3o-action-color': '#6370E5',
-      '--w3o-border-radius': '16px'
+      '--w3o-border-radius': '16px',
+      '--w3o-font-family': 'unset'
     },
     dark: {
       '--w3o-background-color': '#1A1D26',
@@ -91,7 +108,8 @@
       '--w3o-text-color': '#EFF1FC',
       '--w3o-border-color': '#33394B',
       '--w3o-action-color': '#929bed',
-      '--w3o-border-radius': '16px'
+      '--w3o-border-radius': '16px',
+      '--w3o-font-family': 'unset'
     }
   }
 
@@ -266,9 +284,9 @@
             placeholder="Enter your Website URL"
             bind:value={webURL}
           />
-          <button on:click={addURLToIFrame}>Preview On Your Website</button>
+          <button type="submit">Preview On Your Website</button>
           <button
-            on:click={resetPage}
+            on:click={() => resetPage()}
             type="button"
             disabled={iframeUsed || !!uploaded_image ? false : true}>Reset</button
           >

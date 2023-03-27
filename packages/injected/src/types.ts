@@ -13,7 +13,9 @@ import {
  */
 export enum ProviderIdentityFlag {
   AlphaWallet = 'isAlphaWallet',
+  ApexWallet = 'isApexWallet',
   AToken = 'isAToken',
+  BifrostWallet = 'isBifrost',
   Binance = 'bbcSignTx',
   Bitpie = 'isBitpie',
   BlockWallet = 'isBlockWallet',
@@ -27,6 +29,7 @@ export enum ProviderIdentityFlag {
   HuobiWallet = 'isHbWallet',
   HyperPay = 'isHyperPay',
   ImToken = 'isImToken',
+  InfinityWallet = 'isInfinityWallet',
   Liquality = 'isLiquality',
   MeetOne = 'wallet',
   MetaMask = 'isMetaMask',
@@ -62,7 +65,9 @@ export enum ProviderIdentityFlag {
 
 export enum ProviderLabel {
   AlphaWallet = 'AlphaWallet',
+  ApexWallet = 'Apex Wallet',
   AToken = 'AToken',
+  BifrostWallet = 'Bifrost Wallet',
   Binance = 'Binance Smart Wallet',
   Bitpie = 'Bitpie',
   Bitski = 'Bitski',
@@ -77,6 +82,7 @@ export enum ProviderLabel {
   HuobiWallet = 'Huobi Wallet',
   HyperPay = 'HyperPay',
   ImToken = 'imToken',
+  InfinityWallet = 'Infinity Wallet',
   Liquality = 'Liquality',
   MeetOne = 'MeetOne',
   MetaMask = 'MetaMask',
@@ -91,7 +97,7 @@ export enum ProviderLabel {
   XDEFI = 'XDEFI Wallet',
   OneInch = '1inch Wallet',
   Tokenary = 'Tokenary Wallet',
-  Tally = 'Tally Ho Wallet',
+  Tally = 'Taho',
   Rabby = 'Rabby',
   MathWallet = 'MathWallet',
   GameStop = 'GameStop Wallet',

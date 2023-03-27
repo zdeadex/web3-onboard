@@ -4,7 +4,7 @@
 
 ![Transaction Preview Flow](https://github.com/blocknative/web3-onboard/blob/develop/assets/transaction-preview.gif?raw=true 'Transaction Preview Flow')
 
-#### Full Transaction Preview package documentation available [here](https://onboard.blocknative.com/docs/packages/transaction-preview)
+#### Give Transaction Preview a test run by previewing Vitalik swapping tokens and find full package documentation [here](https://onboard.blocknative.com/docs/packages/transaction-preview)
 
 Full Simulation Platform API documentation can be found [here](https://docs.blocknative.com/transaction-preview-api)
 
@@ -17,6 +17,8 @@ Full Simulation Platform API documentation can be found [here](https://docs.bloc
 `yarn add @web3-onboard/core @web3-onboard/injected @web3-onboard/transaction-preview`
 
 ### Usage with Web3-Onboard Core package
+
+![Transaction Preview Image with Account Center](https://github.com/blocknative/web3-onboard/blob/develop/assets/transaction-preview.png?raw=true 'Transaction Preview Image with Account Center')
 
 To use the Transaction Preview package with web3-onboard all a developer needs to do is initialize web3-onboard with their [Blocknative API key](https://onboard.blocknative.com/docs/overview/introduction#optional-use-an-api-key-to-fetch-real-time-transaction-data-balances-gas) and pass in the module as shown below.
 
@@ -55,7 +57,12 @@ const onboard = Onboard({
 
 ### Standalone Usage
 
-To use the Transaction Preview package with web3-onboard all a developer needs to do is initialize web3-onboard with their [Blocknative API key](https://onboard.blocknative.com/docs/overview/introduction#optional-use-an-api-key-to-fetch-real-time-transaction-data-balances-gas) and pass in the module as shown below.
+To use the Transaction Preview package without web3-onboard all a developer needs to do is: 
+- Execute the entry function from the `@web3-onboard/transaction-preview` package and optional params
+- Run the returned `init` function with their [Blocknative API key](https://onboard.blocknative.com/docs/overview/introduction#optional-use-an-api-key-to-fetch-real-time-transaction-data-balances-gas), an initialized instance of their [Blocknative SDK](https://www.npmjs.com/package/bnc-sdk) and a containerElement string with the html ID of the target element to append the visualization to
+- Finally pass a transaction meant for a wallet provider (created using libraries like Ethers or Web3)
+
+With the above steps a UI will be rendered with the balance changes and gas used.
 
 ```typescript
 import transactionPreviewModule from '@web3-onboard/transaction-preview'
@@ -83,6 +90,8 @@ containerElement: string})
 
 // Transaction code here using Ether.js or Web3.js or construct your own transactions
 const simulate = async provider => {
+  // if using ethers v6 this is:
+  // ethersProvider = new ethers.BrowserProvider(wallet.provider, 'any')
   const ethersProvider = new ethers.providers.Web3Provider(provider, 'any')
 
   const signer = ethersProvider.getSigner()
@@ -116,7 +125,7 @@ const simulate = async provider => {
   )
 
   const amountOutMin = 0
-  const amountOutMinHex = ethers.BigNumber.from(amountOutMin.toString())._hex
+  const amountOutMinHex = ethers.BigNumber.from(amountOutMin).toHexString()
 
   const path = [oneInch, weth]
   const deadline = Math.floor(Date.now() / 1000) + 60 * 1 // 1 minutes from the current Unix time
@@ -143,10 +152,11 @@ const simulate = async provider => {
       value: 0
     }
   ]
-  await previewTransaction(transactions)
+  return await previewTransaction(transactions)
 }
 
-simulate(ethereumProvider)
+const simData = simulate(ethereumProvider)
+console.log(simData)
 ```
 
 ### Options & Types
@@ -156,28 +166,36 @@ export type TransactionPreviewModule = (
   options: TransactionPreviewOptions
 ) => TransactionPreviewAPI
 
+export type FullPreviewOptions = TransactionPreviewOptions &
+  TransactionPreviewInitOptions
+
 export type TransactionPreviewAPI = {
   /**
-   * Pass this method a standard EIP1193 provider
+   * This Method accepts a standard EIP1193 provider
    * (such as an injected wallet from window.ethereum)
    * and it will be patched to allow for transaction previewing
    */
   patchProvider: (provider: PatchedEIP1193Provider) => PatchedEIP1193Provider
+
   /**
-   * Pass this method a standard EIP1193 provider
-   * (such as an injected wallet from window.ethereum)
-   * and it will be patched to allow for transaction previewing
+   * This Method accepts:
+   * apiKey: string - Blocknative API key (https://explorer.blocknative.com/)
+   * sdk: instance of an initialized bnc-sdk (www.npmjs.com/package/bnc-sdk)
+   * containerElement: string of an html id selector (e.g. "#my-html-el")
    */
   init: (initializationOptions: TransactionPreviewInitOptions) => void
-    /**
-   * Pass this method a transaction that would be passed to a wallet provider
-   * (such as transaction built using a lib like Ethers or Web3)
-   * and the transaction will be simulated and a UI generated
+
+  /**
+   * This method accepts a transaction meant for a wallet provider
+   * (created using libraries like Ethers or Web3),
+   * simulates the transaction and generates a corresponding UI and
+   * return a response from the Blocknative Transaction Preview API.
    * Note: the package will need to initialized with the `init`
    * function prior to usage
    */
   previewTransaction: (
     transaction: TransactionForSim[]
+  ) => Promise<MultiSimOutput>
 }
 
 export type PatchedEIP1193Provider = EIP1193Provider & { simPatched: boolean }
@@ -195,7 +213,7 @@ export type TransactionPreviewInitOptions = {
    */
   apiKey: string
   /**
-   * Your Blocknative SDK instance
+   * Your Blocknative SDK instance (https://www.npmjs.com/package/bnc-sdk)
    * */
   sdk: SDK
   /**
@@ -265,6 +283,7 @@ export type MultiSimOutput = {
 export interface ContractCall {
   contractType?: string
   contractAddress?: string
+  contractAlias?: string
   methodName: string
   params: Record<string, unknown>
   contractName?: string
@@ -281,6 +300,8 @@ export interface InternalTransaction {
   gasUsed: number
   value: string
   contractCall: ContractCall
+  error?: string
+  errorReason?: string
 }
 
 export interface NetBalanceChange {

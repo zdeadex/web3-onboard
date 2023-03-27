@@ -2,6 +2,7 @@
   import Onboard from '@web3-onboard/core'
   import fortmaticModule from '@web3-onboard/fortmatic'
   import gnosisModule from '@web3-onboard/gnosis'
+  import infinityWalletModule from '@web3-onboard/infinity-wallet'
   import injectedModule, { ProviderLabel } from '@web3-onboard/injected-wallets'
   import keepkeyModule from '@web3-onboard/keepkey'
   import keystoneModule from '@web3-onboard/keystone'
@@ -17,6 +18,7 @@
   import dcentModule from '@web3-onboard/dcent'
   import sequenceModule from '@web3-onboard/sequence'
   import tallyHoModule from '@web3-onboard/tallyho'
+  import xdefiWalletModule from '@web3-onboard/xdefi'
   import zealModule from '@web3-onboard/zeal'
   import transactionPreviewModule from '@web3-onboard/transaction-preview'
   import enkryptModule from '@web3-onboard/enkrypt'
@@ -34,8 +36,6 @@
   import { ethers } from 'ethers'
   import { share } from 'rxjs/operators'
   import VConsole from 'vconsole'
-  import blocknativeIcon from './blocknative-icon'
-  import blocknativeLogo from './blocknative-logo'
 
   if (window.innerWidth < 700) {
     new VConsole()
@@ -103,7 +103,13 @@
   const coinbaseWallet = coinbaseModule()
 
   const walletConnect = walletConnectModule({
-    connectFirstChainId: true
+    connectFirstChainId: true,
+    version: 2,
+    handleUri: (uri) => console.log(uri),
+    projectId: 'f6bd6e2911b56f5ac3bc8b2d0e2d7ad5',
+    qrcodeModalOptions: {
+    mobileLinks: ['rainbow', 'metamask', 'argent', 'trust', 'imtoken', 'pillar']
+    }
   })
   const portis = portisModule({
     apiKey: 'b2b7586f-2b1e-4c30-a7fb-c2d1533b153b'
@@ -119,11 +125,13 @@
   })
 
   const torus = torusModule()
+  const infinityWallet = infinityWalletModule()
   const ledger = ledgerModule()
   const keepkey = keepkeyModule()
   const keystone = keystoneModule()
   const gnosis = gnosisModule()
   const tallyho = tallyHoModule()
+  const xdefi = xdefiWalletModule()
   const zeal = zealModule()
   const phantom = phantomModule()
   const trust = trustModule()
@@ -165,6 +173,7 @@
       ledger,
       trezor,
       walletConnect,
+      infinityWallet,
       trust,
       enkrypt,
       mewWallet,
@@ -183,7 +192,8 @@
       web3auth,
       zeal,
       frontier,
-      phantom
+      phantom,
+      xdefi
     ],
     transactionPreview,
     gas,
@@ -193,6 +203,12 @@
         token: 'ETH',
         label: 'Ethereum',
         rpcUrl: `https://mainnet.infura.io/v3/${infura_key}`
+      },
+      {
+        id: 11155111,
+        token: 'ETH',
+        label: 'Sepolia',
+        rpcUrl: 'https://rpc.sepolia.org/'
       },
       {
         id: '0x5',
@@ -213,7 +229,7 @@
         rpcUrl: 'https://bsc-dataseed.binance.org/'
       },
       {
-        id: 137,
+        id: '0x89',
         token: 'MATIC',
         label: 'Polygon',
         rpcUrl: 'https://matic-mainnet.chainstacklabs.com'
@@ -233,11 +249,13 @@
     ],
     connect: {
       // disableClose: true,
-      autoConnectLastWallet: true
+      // disableUDResolution: true,
+      autoConnectLastWallet: true,
+      autoConnectAllPreviousWallet: true
     },
     appMetadata: {
       name: 'Blocknative',
-      icon: blocknativeIcon,
+      // icon: blocknativeIcon,
       // logo: blocknativeLogo,
       description: 'Demo app for Onboard V2',
       recommendedInjectedWallets: [
@@ -285,7 +303,7 @@
           //     type: 'hint',
           //     message: 'Your in the pool, hope you brought a towel!',
           //     autoDismiss: 0,
-          //     link: `https://ropsten.etherscan.io/tx/${transaction.hash}`
+          //     link: `https://goerli.etherscan.io/tx/${transaction.hash}`
           //   }
           // }
         },
@@ -306,13 +324,20 @@
   // Subscribe to wallet updates
   const wallets$ = onboard.state.select('wallets').pipe(share())
   wallets$.subscribe(wallet => {
+    console.log(wallet)
     const unstoppableUser = wallet.find(
       provider => provider.label === 'Unstoppable'
     )
     if (unstoppableUser) console.log(unstoppableUser.instance.user)
+    const wc = wallet.find(
+      provider => provider.label === 'WalletConnect'
+    )
+    if(wc) console.log(wc)
   })
 
   const signTransactionMessage = async provider => {
+    // if using ethers v6 this is:
+    // ethersProvider = new ethers.BrowserProvider(wallet.provider, 'any')
     const ethersProvider = new ethers.providers.Web3Provider(provider, 'any')
 
     const signer = ethersProvider.getSigner()
@@ -327,6 +352,8 @@
 
   let toAddress = '0xc572779D7839B998DF24fc316c89BeD3D450ED13'
   const sendTransaction = async provider => {
+    // if using ethers v6 this is:
+    // ethersProvider = new ethers.BrowserProvider(wallet.provider, 'any')
     const ethersProvider = new ethers.providers.Web3Provider(provider, 'any')
 
     const signer = ethersProvider.getSigner()
@@ -419,6 +446,8 @@
     await onboard.setChain({ chainId: '0x5' })
 
     const balanceValue = Object.values(balance)[0]
+    // if using ethers v6 this is:
+    // ethersProvider = new ethers.BrowserProvider(wallet.provider, 'any')
     const ethersProvider = new ethers.providers.Web3Provider(provider, 'any')
 
     const signer = ethersProvider.getSigner()
@@ -450,6 +479,8 @@
   }
 
   const signMessage = async (provider, address) => {
+    // if using ethers v6 this is:
+    // ethersProvider = new ethers.BrowserProvider(wallet.provider, 'any')
     const ethersProvider = new ethers.providers.Web3Provider(provider, 'any')
 
     const signer = ethersProvider?.getSigner()
@@ -673,11 +704,14 @@
           <button on:click={() => onboard.setChain({ chainId: '0x1' })}
             >Set Chain to Mainnet</button
           >
-          <button on:click={() => onboard.setChain({ chainId: '0x4' })}
-            >Set Chain to Rinkeby</button
+          <button on:click={() => onboard.setChain({ chainId: '0x5' })}
+            >Set Chain to Goerli</button
           >
           <button on:click={() => onboard.setChain({ chainId: '0x89' })}
             >Set Chain to Matic</button
+          >
+          <button on:click={() => onboard.updateChain({ chainId: 10 })}
+            >Set Chain to Optimism</button
           >
         </div>
       </div>

@@ -3,11 +3,14 @@
 // Example: provider.isCoinbaseWallet -> coinbasewallet
 export const WALLET_NAMES: { [key: string]: string } = {
   alphawallet: 'AlphaWallet',
+  apexwallet: 'Apex Wallet',
   atoken: 'AToken',
+  bifrostwallet: 'Bifrost Wallet',
   binance: 'Binance Chain Wallet',
   bitpie: 'Bitpie',
   bitski: 'Bitski',
   coinbasewallet: 'Coinbase Wallet',
+  infinitywallet: 'Infinity Wallet',
   dcentwallet: "D'CENT",
   metamask: 'MetaMask',
   detected: 'Detected Wallet',

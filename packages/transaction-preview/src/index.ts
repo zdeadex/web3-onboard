@@ -1,9 +1,7 @@
 import { firstValueFrom, Subject } from 'rxjs'
 import {
   ProviderRpcError,
-  ProviderRpcErrorCode,
-  SofiaProLight,
-  SofiaProRegular
+  ProviderRpcErrorCode
 } from '@web3-onboard/common'
 import type {
   PatchedEIP1193Provider,
@@ -94,7 +92,7 @@ export const patchProvider = (
       req.params.length
     ) {
       const transactionParams = req.params as TransactionForSim[]
-      await previewTransaction(transactionParams, fullProviderRequest, req)
+      await handlePreview(transactionParams, fullProviderRequest, req)
     } else {
       return fullProviderRequest(req)
     }
@@ -111,7 +109,7 @@ export const patchProvider = (
   return patchedProvider
 }
 
-export const previewTransaction = async (
+const handlePreview = async (
   transaction: TransactionForSim[],
   fullProviderRequest?: PatchedEIP1193Provider['request'],
   req?: {
@@ -127,6 +125,10 @@ export const previewTransaction = async (
       )
     }
     const preview = await simulateTransactions(options, transaction)
+    if (!preview) {
+      throw new Error(`An error ocurred while simulating the transaction, please 
+      see the console for more details`)
+    }
     if (preview.error.length) {
       fullProviderRequest(req)
       handleTPErrors(preview)
@@ -147,6 +149,38 @@ export const previewTransaction = async (
           .catch(() => app.$destroy())
   } catch (e) {
     fullProviderRequest(req)
+    if (app) app.$destroy()
+    throw new Error(`${e}`)
+  }
+}
+
+export const previewTransaction = async (
+  transaction: TransactionForSim[]
+): Promise<MultiSimOutput> => {
+  try {
+    if (!options) {
+      throw new Error(
+        `Please initialize Transaction Preview package prior to previewing a transaction.
+         You can do this by calling the init function with the appropriate params`
+      )
+    }
+    const preview = await simulateTransactions(options, transaction)
+    if (!preview) {
+      throw new Error(`An error ocurred while simulating the transaction, please 
+      see the console for more details`)
+    }
+    if (preview.error.length) {
+      handleTPErrors(preview)
+    }
+    if (preview.status !== 'simulated' || !netBalanceChangesExist(preview)) {
+      // If transaction simulation was unsuccessful or balanceChanges do
+      // not exist do not create DOM el
+      console.error('No net balance changes ocurred from this simulation')
+    }
+    if (app) app.$destroy()
+    app = mountTransactionPreview(preview)
+    return preview
+  } catch (e) {
     if (app) app.$destroy()
     throw new Error(`${e}`)
   }
@@ -205,6 +239,30 @@ const init = (initOptions: TransactionPreviewInitOptions): void => {
   options = { ...initOptions, ...optionalSettings }
 }
 
+const fontFamilyExternallyDefined = (): boolean => {
+  if (
+    document.body &&
+    (getComputedStyle(document.body).getPropertyValue('--w3o-font-family') ||
+      getComputedStyle(document.body).getPropertyValue(
+        '--onboard-font-family-normal'
+      ))
+  )
+    return true
+  return false
+}
+
+const importFontsToDoc = async (): Promise<void> => {
+  const { InterVar } = await import('@web3-onboard/common')
+  // Add Fonts to main page
+  const styleEl = document.createElement('style')
+
+  styleEl.innerHTML = `
+    ${InterVar}
+  `
+
+  document.body.appendChild(styleEl)
+}
+
 const mountTransactionPreview = (simResponse: MultiSimOutput) => {
   class TransactionPreviewEl extends HTMLElement {
     constructor() {
@@ -216,14 +274,9 @@ const mountTransactionPreview = (simResponse: MultiSimOutput) => {
     customElements.define('transaction-preview', TransactionPreviewEl)
   }
 
-  // Add Fonts to main page
-  const styleEl = document.createElement('style')
-
-  styleEl.innerHTML = `
-    ${SofiaProRegular}
-    ${SofiaProLight}
-  `
-  document.body.appendChild(styleEl)
+  if (!fontFamilyExternallyDefined()) {
+    importFontsToDoc()
+  }
 
   // add to DOM
   const transactionPreviewDomElement = document.createElement(
@@ -238,24 +291,12 @@ const mountTransactionPreview = (simResponse: MultiSimOutput) => {
   const containerElementQuery = options.containerElement || 'body'
 
   let containerEl: Element | null
-  // If Onboard present copy stylesheets over to TransactionPreview shadow DOM
-  if (getW3OEl && getW3OEl.shadowRoot) {
-    const w3OStyleSheets = getW3OEl.shadowRoot.styleSheets
-    const transactionPreviewStyleSheet = new CSSStyleSheet()
 
-    Object.values(w3OStyleSheets).forEach(sheet => {
-      const styleRules = Object.values(sheet.cssRules)
-      styleRules.forEach(rule =>
-        transactionPreviewStyleSheet.insertRule(rule.cssText)
-      )
-    })
-
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-ignore
-    target.adoptedStyleSheets = [transactionPreviewStyleSheet]
-    containerEl = getW3OEl.shadowRoot.querySelector(containerElementQuery)
-  } else {
+  // #w3o-transaction-preview-container is the container ID used by Onboard
+  if (containerElementQuery !== '#w3o-transaction-preview-container') {
     containerEl = document.querySelector(containerElementQuery)
+  } else {
+    containerEl = getW3OEl.shadowRoot.querySelector(containerElementQuery)
   }
 
   if (!containerEl) {

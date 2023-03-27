@@ -337,7 +337,7 @@
     font-size: var(--onboard-font-size-6, var(--font-size-6));
     line-height: var(--onboard-font-line-height-3, var(--font-line-height-3));
     border: 1px solid var(--onboard-gray-500, var(--gray-500));
-    font-weight: 700;
+    font-weight: 600;
   }
 
   :global(.button-neutral-solid) {
@@ -412,7 +412,7 @@
     style="top: 0; right: 0; {device.type === 'mobile'
       ? 'padding-bottom: 0;'
       : ''} "
-    id="transaction-preview-container"
+    id="w3o-transaction-preview-container"
   />
 {/if}
 
@@ -440,7 +440,7 @@
       {/await}
     {/if}
     {#if $accountCenter$.position.includes('bottom')}
-      <div id="transaction-preview-container" style="margin-bottom: 8px;" />
+      <div id="w3o-transaction-preview-container" style="margin-bottom: 8px;" />
     {/if}
     <div
       style={!$accountCenter$.expanded &&
@@ -461,7 +461,7 @@
       {/await}
     </div>
     {#if $accountCenter$.position.includes('top')}
-      <div id="transaction-preview-container" style="margin-top: 8px;" />
+      <div id="w3o-transaction-preview-container" style="margin-top: 8px;" />
     {/if}
     {#if $notify$.position.includes('top') && $accountCenter$.position.includes('top') && samePositionOrMobile}
       {#await notifyComponent then Notify}
@@ -489,7 +489,7 @@
       : ''} "
   >
     {#if $accountCenter$.position.includes('bottom')}
-      <div id="transaction-preview-container" style="margin-bottom: 8px;" />
+      <div id="w3o-transaction-preview-container" style="margin-bottom: 8px;" />
     {/if}
     <div
       style={!$accountCenter$.expanded &&
@@ -511,7 +511,7 @@
       {/if}
     </div>
     {#if $accountCenter$.position.includes('top')}
-      <div id="transaction-preview-container" style="margin-top: 8px;" />
+      <div id="w3o-transaction-preview-container" style="margin-top: 8px;" />
     {/if}
   </div>
 {/if}
@@ -527,7 +527,7 @@
       : ''} "
   >
     {#if $notify$.position.includes('top')}
-      <div id="transaction-preview-container" />
+      <div id="w3o-transaction-preview-container" />
     {/if}
     {#await notifyComponent then Notify}
       {#if Notify}
@@ -540,7 +540,7 @@
       {/if}
     {/await}
     {#if $notify$.position.includes('bottom')}
-      <div id="transaction-preview-container" />
+      <div id="w3o-transaction-preview-container" />
     {/if}
   </div>
 {/if}
