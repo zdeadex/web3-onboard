@@ -113,7 +113,7 @@ const simulateTransactions = async (
         from: convertedTransaction.from,
         to: convertedTransaction.to,
         gas: convertedTransaction.gas || 0,
-        // gasPrice: convertedTransaction.gasPrice || 0,
+        gasPrice: convertedTransaction.gasPrice || 0,
         maxFeePerGas: convertedTransaction.maxFeePerGas,
         maxPriorityFeePerGas: convertedTransaction.maxPriorityFeePerGas,
         input:
@@ -127,9 +127,11 @@ const simulateTransactions = async (
     }
   )
 console.log(129, cleanedTransactions)
-  return sdk.simulate('ethereum',
-   'main',
-    cleanedTransactions[0]) as Promise<MultiSimOutput>
-}
+//   return sdk.simulate('ethereum',
+//    'main',
+//     cleanedTransactions[0]) as Promise<MultiSimOutput>
+// }
+  return sdk.multiSim(cleanedTransactions) as Promise<MultiSimOutput>
+  }
 
 export default simulateTransactions
