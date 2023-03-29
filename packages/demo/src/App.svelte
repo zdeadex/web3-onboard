@@ -401,7 +401,7 @@
     const amountOutMinHex = ethers.BigNumber.from(amountOutMin.toString())._hex
     
     const path = [oneInch, weth]
-    const deadline = Math.floor(Date.now() / 1000) + 60 * 1 // 1 minutes from the current Unix time
+    const deadline = Math.floor(Date.now() / 1000) + 60 * 3 // 1 minutes from the current Unix time
 
     const inputAmountHex = oneEther.toHexString()
 
@@ -414,7 +414,7 @@
     )
     const uniswapV2Router = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'
 
-    const popTransaction = await signer.populateTransaction({...swapTxData, type: 0})
+    const popTransaction = await signer.populateTransaction({...swapTxData})
     console.log(popTransaction)
     // const popTransaction = await signer.populateTransaction(approveTxData)
     // console.log(popTransaction)
