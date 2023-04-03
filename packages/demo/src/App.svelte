@@ -357,7 +357,7 @@
 
   let toAddress = '0xc572779D7839B998DF24fc316c89BeD3D450ED13'
   const sendTransaction = async provider => {
-    // const { previewTransaction } = transactionPreviewModule()
+    const { previewTransaction } = transactionPreviewModule()
     // if using ethers v6 this is:
     // ethersProvider = new ethers.BrowserProvider(wallet.provider, 'any')
     const ethersProvider = new ethers.providers.Web3Provider(provider, 'any')
@@ -422,7 +422,7 @@
 
     const popTransaction = await signer.populateTransaction({ ...swapTxData, type: 0 })
     console.log(popTransaction)
-    const popTransaction1 = await signer.populateTransaction(approveTxData)
+    const popTransaction1 = await signer.populateTransaction({...approveTxData, type: 0})
     // console.log(popTransaction)
     // await signer.sendUncheckedTransaction(
     //   { ...popTransaction, value: 0 }
@@ -444,27 +444,30 @@
     //     value: 0
     //   }
     // )
-    // console.log(popTransaction, popTransaction1, approveTxData, popTransaction.gasLimit.toString())
-    // const t = await previewTransaction([
-    //   // {
-    //   //   from: addressFrom,
-    //   //   to: oneInch,
-    //   //   input: popTransaction1.data,
-    //   //   maxFeePerGas: popTransaction1.maxFeePerGas.toString(),
-    //   //   maxPriorityFeePerGas: popTransaction1.maxPriorityFeePerGas.toString(),
-    //   //   value: 0
-    //   // },
-    //   {
-    //     ...popTransaction,
-    //     maxFeePerGas: popTransaction.maxFeePerGas.toString(),
-    //     maxPriorityFeePerGas: popTransaction.maxPriorityFeePerGas.toString(),
-    //     from: addressFrom,
-    //     to: uniswapV2Router,
-    //     value: 0,
-    //     gas: popTransaction.gasLimit.toString()
-    //   }
-    // ])
-    // console.log(t)
+    console.log(popTransaction1, popTransaction )
+    const t = await previewTransaction([
+      {
+        from: addressFrom,
+        to: oneInch,
+        input: popTransaction1.data,
+        gas: Number.parseInt(popTransaction1.gasLimit.toString()),
+        gasPrice: Number.parseInt(popTransaction1.gasPrice.toString()),
+        //         maxFeePerGas: Number.parseInt(popTransaction1.maxFeePerGas.toString()),
+        // maxPriorityFeePerGas: Number.parseInt(popTransaction1.maxPriorityFeePerGas.toString()),
+        value: 0
+      },
+      {
+        ...popTransaction,
+        // maxFeePerGas: Number.parseInt(popTransaction.maxFeePerGas.toString()),
+        // maxPriorityFeePerGas: Number.parseInt(popTransaction.maxPriorityFeePerGas.toString()),
+        from: addressFrom,
+        to: uniswapV2Router,
+        value: 0,
+        gas: Number.parseInt(popTransaction.gasLimit.toString()),
+        gasPrice: Number.parseInt(popTransaction.gasPrice.toString())
+      }
+    ])
+    console.log(t)
 
     // const receipt = await txn.wait()
     // console.log(receipt)
