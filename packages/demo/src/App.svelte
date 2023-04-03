@@ -105,10 +105,17 @@
   const walletConnect = walletConnectModule({
     connectFirstChainId: true,
     version: 2,
-    handleUri: (uri) => console.log(uri),
+    handleUri: uri => console.log(uri),
     projectId: 'f6bd6e2911b56f5ac3bc8b2d0e2d7ad5',
     qrcodeModalOptions: {
-    mobileLinks: ['rainbow', 'metamask', 'argent', 'trust', 'imtoken', 'pillar']
+      mobileLinks: [
+        'rainbow',
+        'metamask',
+        'argent',
+        'trust',
+        'imtoken',
+        'pillar'
+      ]
     }
   })
   const portis = portisModule({
@@ -317,8 +324,8 @@
     //   accountCenter: '#sample-container-el2'
     // },
     // Sign up for your free api key at www.Blocknative.com
-    apiKey,
-    theme: 'system'
+    apiKey
+    // theme: 'system'
   })
 
   // Subscribe to wallet updates
@@ -329,10 +336,8 @@
       provider => provider.label === 'Unstoppable'
     )
     if (unstoppableUser) console.log(unstoppableUser.instance.user)
-    const wc = wallet.find(
-      provider => provider.label === 'WalletConnect'
-    )
-    if(wc) console.log(wc)
+    const wc = wallet.find(provider => provider.label === 'WalletConnect')
+    if (wc) console.log(wc)
   })
 
   const signTransactionMessage = async provider => {
@@ -352,6 +357,7 @@
 
   let toAddress = '0xc572779D7839B998DF24fc316c89BeD3D450ED13'
   const sendTransaction = async provider => {
+    // const { previewTransaction } = transactionPreviewModule()
     // if using ethers v6 this is:
     // ethersProvider = new ethers.BrowserProvider(wallet.provider, 'any')
     const ethersProvider = new ethers.providers.Web3Provider(provider, 'any')
@@ -399,7 +405,7 @@
 
     const amountOutMin = 0
     const amountOutMinHex = ethers.BigNumber.from(amountOutMin.toString())._hex
-    
+
     const path = [oneInch, weth]
     const deadline = Math.floor(Date.now() / 1000) + 60 * 3 // 1 minutes from the current Unix time
 
@@ -414,9 +420,9 @@
     )
     const uniswapV2Router = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'
 
-    const popTransaction = await signer.populateTransaction({...swapTxData})
+    const popTransaction = await signer.populateTransaction({ ...swapTxData, type: 0 })
     console.log(popTransaction)
-    // const popTransaction = await signer.populateTransaction(approveTxData)
+    const popTransaction1 = await signer.populateTransaction(approveTxData)
     // console.log(popTransaction)
     // await signer.sendUncheckedTransaction(
     //   { ...popTransaction, value: 0 }
@@ -430,14 +436,35 @@
     //   // },
     // )
     // console.log(swapTxData)
-    await signer.sendTransaction(
-            {
-              ...popTransaction,
-        from: addressFrom,
-        to: uniswapV2Router,
-        value: 0
-      }
-    )
+    // await signer.sendTransaction(
+    //         {
+    //           ...popTransaction,
+    //     from: addressFrom,
+    //     to: uniswapV2Router,
+    //     value: 0
+    //   }
+    // )
+    // console.log(popTransaction, popTransaction1, approveTxData, popTransaction.gasLimit.toString())
+    // const t = await previewTransaction([
+    //   // {
+    //   //   from: addressFrom,
+    //   //   to: oneInch,
+    //   //   input: popTransaction1.data,
+    //   //   maxFeePerGas: popTransaction1.maxFeePerGas.toString(),
+    //   //   maxPriorityFeePerGas: popTransaction1.maxPriorityFeePerGas.toString(),
+    //   //   value: 0
+    //   // },
+    //   {
+    //     ...popTransaction,
+    //     maxFeePerGas: popTransaction.maxFeePerGas.toString(),
+    //     maxPriorityFeePerGas: popTransaction.maxPriorityFeePerGas.toString(),
+    //     from: addressFrom,
+    //     to: uniswapV2Router,
+    //     value: 0,
+    //     gas: popTransaction.gasLimit.toString()
+    //   }
+    // ])
+    // console.log(t)
 
     // const receipt = await txn.wait()
     // console.log(receipt)

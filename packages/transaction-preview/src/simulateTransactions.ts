@@ -111,10 +111,11 @@ const simulateTransactions = async (
       const convertedTransaction = hexFieldsToNumber(
         transaction as TransactionForSim
       )
+
       const cleanedTrans = {
         from: convertedTransaction.from,
         to: convertedTransaction.to,
-        gas: convertedTransaction.gas || 0,
+        gas: convertedTransaction.gas || convertedTransaction.gasLimit || 0,
         gasPrice: convertedTransaction.gasPrice || 0,
         maxFeePerGas: convertedTransaction.maxFeePerGas,
         maxPriorityFeePerGas: convertedTransaction.maxPriorityFeePerGas,
@@ -128,6 +129,7 @@ const simulateTransactions = async (
       return cleanedTrans
     }
   )
+  console.log(cleanedTransactions)
 console.log(129, cleanedTransactions)
 //   return sdk.simulate('ethereum',
 //    'main',
