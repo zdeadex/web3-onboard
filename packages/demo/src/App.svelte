@@ -422,7 +422,7 @@
 
     const popTransaction = await signer.populateTransaction({ ...swapTxData, type: 0 })
     console.log(popTransaction)
-    const popTransaction1 = await signer.populateTransaction({...approveTxData, type: 0})
+    // const popTransaction1 = await signer.populateTransaction({...approveTxData})
     // console.log(popTransaction)
     // await signer.sendUncheckedTransaction(
     //   { ...popTransaction, value: 0 }
@@ -436,38 +436,38 @@
     //   // },
     // )
     // console.log(swapTxData)
-    // await signer.sendTransaction(
-    //         {
-    //           ...popTransaction,
-    //     from: addressFrom,
-    //     to: uniswapV2Router,
-    //     value: 0
-    //   }
-    // )
-    console.log(popTransaction1, popTransaction )
-    const t = await previewTransaction([
-      {
-        from: addressFrom,
-        to: oneInch,
-        input: popTransaction1.data,
-        gas: Number.parseInt(popTransaction1.gasLimit.toString()),
-        gasPrice: Number.parseInt(popTransaction1.gasPrice.toString()),
-        //         maxFeePerGas: Number.parseInt(popTransaction1.maxFeePerGas.toString()),
-        // maxPriorityFeePerGas: Number.parseInt(popTransaction1.maxPriorityFeePerGas.toString()),
-        value: 0
-      },
-      {
-        ...popTransaction,
-        // maxFeePerGas: Number.parseInt(popTransaction.maxFeePerGas.toString()),
-        // maxPriorityFeePerGas: Number.parseInt(popTransaction.maxPriorityFeePerGas.toString()),
+    await signer.sendTransaction(
+            {
+              ...popTransaction,
         from: addressFrom,
         to: uniswapV2Router,
-        value: 0,
-        gas: Number.parseInt(popTransaction.gasLimit.toString()),
-        gasPrice: Number.parseInt(popTransaction.gasPrice.toString())
+        value: 0
       }
-    ])
-    console.log(t)
+    )
+    // console.log(popTransaction1, popTransaction )
+    // const t = await previewTransaction([
+    //   {
+    //     from: addressFrom,
+    //     to: oneInch,
+    //     input: popTransaction1.data,
+    //     gas: Number.parseInt(popTransaction1.gasLimit.toString()),
+    //     gasPrice: Number.parseInt(popTransaction1.gasPrice.toString()),
+    //     //         maxFeePerGas: Number.parseInt(popTransaction1.maxFeePerGas.toString()),
+    //     // maxPriorityFeePerGas: Number.parseInt(popTransaction1.maxPriorityFeePerGas.toString()),
+    //     value: 0
+    //   },
+    //   {
+    //     ...popTransaction,
+    //     // maxFeePerGas: Number.parseInt(popTransaction.maxFeePerGas.toString()),
+    //     // maxPriorityFeePerGas: Number.parseInt(popTransaction.maxPriorityFeePerGas.toString()),
+    //     from: addressFrom,
+    //     to: uniswapV2Router,
+    //     value: 0,
+    //     gas: Number.parseInt(popTransaction.gasLimit.toString()),
+    //     gasPrice: Number.parseInt(popTransaction.gasPrice.toString())
+    //   }
+    // ])
+    // console.log(t)
 
     // const receipt = await txn.wait()
     // console.log(receipt)
